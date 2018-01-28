@@ -6,6 +6,7 @@ project(cubemap)
 #find_package(GLUT REQUIRED)
 #include_directories(${OPENGL_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS})
 include_directories("${PROJECT_SOURCE_DIR}/include")
+#include_directories("${PROJECT_SOURCE_DIR}/src")
 
 link_directories("${PROJECT_SOURCE_DIR}/lib")
 set(CMAKE_PROGRAM_PATH "${PROJECT_SOURCE_DIR}/bin")

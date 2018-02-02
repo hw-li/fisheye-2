@@ -18,7 +18,7 @@ the entrance of displaying a cubemap
 #include"model.h"
 #include"texture.h"
 
-const GLuint WIDTH = 800, HEIGHT = 600;
+const GLuint WIDTH = 512, HEIGHT = 512;
 int SCREEN_WIDTH, SCREEN_HEIGHT;
 
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -112,7 +112,6 @@ int main() {
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	glEnable(GL_DEPTH_TEST);
-
 	Shader cubemapShader("shaders/cubemap.vs", "shaders/cubemap.frag");
 
 	GLfloat cubemapVertices[] = {
@@ -177,8 +176,8 @@ int main() {
 	faces.push_back("images/skybox/left.jpg");
 	faces.push_back("images/skybox/top.jpg");
 	faces.push_back("images/skybox/bottom.jpg");
-	faces.push_back("images/skybox/back.jpg");
 	faces.push_back("images/skybox/front.jpg");
+	faces.push_back("images/skybox/back.jpg");
 	GLuint cubemapTexture = TextureLoading::LoadCubemap(faces);
 
 	glm::mat4 projection = glm::perspective(

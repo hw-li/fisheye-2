@@ -53,7 +53,7 @@ public:
     // Returns the view matrix calculated using Eular Angles and the LookAt Matrix
     glm::mat4 GetViewMatrix( )
     {
-        return glm::lookAt( this->position, this->position + this->front, this->up );
+        return glm::lookAt( this->position, this->position + this->front, this->up);
     }
     
     // Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)

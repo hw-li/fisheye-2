@@ -9,7 +9,7 @@
 class TextureLoading
 {
 public:
-    static GLuint LoadTexture( GLchar *path )
+    /*static GLuint LoadTexture( GLchar *path )
     {
         //Generate texture ID and load texture data
         GLuint textureID;
@@ -34,10 +34,9 @@ public:
         SOIL_free_image_data( image );
         
         return textureID;
-    }
+    }*/
     
-    static GLuint LoadCubemap( vector<const GLchar * > faces)
-    {
+    static GLuint LoadCubemap( vector<const GLchar * > faces) {
         GLuint textureID;
         glGenTextures( 1, &textureID );
         
@@ -46,8 +45,7 @@ public:
         
         glBindTexture( GL_TEXTURE_CUBE_MAP, textureID );
         
-        for ( GLuint i = 0; i < faces.size( ); i++ )
-        {
+        for (GLuint i = 0; i < faces.size( ); i++) {
             image = SOIL_load_image( faces[i], &imageWidth, &imageHeight, 0, SOIL_LOAD_RGB );
             glTexImage2D( GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, image );
             SOIL_free_image_data( image );
@@ -61,4 +59,14 @@ public:
         
         return textureID;
     }
+
+	/*static int saveCubemap(const char *filename, int image_type
+			, int width, int height, int channels
+			, const unsigned char* const data, int quality) {
+		return SOIL_save_image_quality(
+			filename, image_type, width, height, channels
+		);
+	}*/
+
+	
 };

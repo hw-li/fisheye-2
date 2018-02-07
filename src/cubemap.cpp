@@ -113,6 +113,13 @@ int main() {
 
 	glEnable(GL_DEPTH_TEST);
 	Shader cubemapShader("shaders/cubemap.vs", "shaders/cubemap.frag");
+	vector<Shader> shaders;
+	shaders.push_back(Shader("shaders/cubemap.vs", "shaders/cubemap_top.frag"));
+	shaders.push_back(Shader("shaders/cubemap.vs", "shaders/cubemap_bottom.frag"));
+	shaders.push_back(Shader("shaders/cubemap.vs", "shaders/cubemap_front.frag"));
+	shaders.push_back(Shader("shaders/cubemap.vs", "shaders/cubemap_back.frag"));
+	shaders.push_back(Shader("shaders/cubemap.vs", "shaders/cubemap_left.frag"));
+	shaders.push_back(Shader("shaders/cubemap.vs", "shaders/cubemap_right.frag"));
 
 	GLfloat cubemapVertices[] = {
 		// Positions
@@ -187,7 +194,56 @@ int main() {
 		, 1000.0f
 	);
 
+	std::string fileNames[6] = {"cubemap_top", "cubemap_bottom", "cubemap_left"
+		, "cubemap_right", "cubemap_front", "cubemap_back"};
+
+	for (int i = 0; i < 6; i++) {
+		glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glm::mat4 model;
+		glm::mat4 view = camera.GetViewMatrix();
+
+		// Change depth function so depth test passes when values 
+		// are equal to depth buffer's content
+		glDepthFunc(GL_LEQUAL);
+		shaders[i].Use();
+		view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
+
+		glUniformMatrix4fv(glGetUniformLocation(shaders[i].Program, "view")
+			, 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(
+			glGetUniformLocation(shaders[i].Program, "projection")
+			, 1, GL_FALSE, glm::value_ptr(projection)
+		);
+
+		glBindVertexArray(cubemapVAO);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(0);
+		glDepthFunc(GL_LESS);
+
+
+		unsigned char* data =
+			(unsigned char*)malloc(WIDTH*HEIGHT * 4 * sizeof(unsigned char));
+
+		glReadnPixels(0, 0, WIDTH, HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE
+			, WIDTH*HEIGHT * 4 * sizeof(unsigned char), data);
+
+		string outputName = fileNames[i] + ".jpg";
+
+		std::cerr << SOIL_save_image_quality(
+			&outputName[0],
+			SOIL_SAVE_TYPE_JPG,
+			WIDTH, HEIGHT, 4,
+			data,
+			100
+		) << endl;
+		std::free(data);
+	}
+	return 0;
 	while (!glfwWindowShouldClose(window)) {
+		break;
 		GLfloat currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
@@ -220,7 +276,23 @@ int main() {
 		glBindVertexArray(0);
 		glDepthFunc(GL_LESS);
 
+		unsigned char* data =
+			(unsigned char*)malloc(WIDTH*HEIGHT * 4 * sizeof(unsigned char));
+
+		glReadnPixels(0, 0, WIDTH, HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE
+			, WIDTH*HEIGHT * 4 * sizeof(unsigned char), data);
+
+		std::cerr << SOIL_save_image_quality(
+			"test1.jpg",
+			SOIL_SAVE_TYPE_JPG,
+			WIDTH, HEIGHT, 4,
+			data,
+			100
+		) << endl;
+		std::free(data);
+
 		glfwSwapBuffers(window);
+		break;
 	}
 
 	glfwTerminate();

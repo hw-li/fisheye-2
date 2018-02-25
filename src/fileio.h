@@ -7,6 +7,8 @@
 #include<string>
 #include<unordered_map>
 
+#include"fisheye.h"
+
 using std::string;
 namespace fs = std::experimental::filesystem;
 
@@ -29,7 +31,22 @@ int loadfile(const string &filepath) {
 	// if the images in the folder will not be duplicated,
 	// we can use the hmap as follow:
 	std::unordered_map<string, int> hmap;
-	const std::unordered_map<string, int> postfix = { {"_0_0.jpg", 8} };
+	/*std::unordered_map<string, int> postfix = {
+		{"_0_0.jpg", 8},
+		{"0_90.jpg", 9}, 
+		{"_270.jpg", 10},
+		{"90_0.jpg", 9},
+		{"80_0.jpg", 10},
+		{"70_0.jpg",10}
+	};*/
+	std::unordered_map<string, int> postfix = {
+		{"_0_0.bin", 8},
+		{"0_90.bin", 9},
+		{"_270.bin", 10},
+		{"90_0.bin", 9},
+		{"80_0.bin", 10},
+		{"70_0.bin",10}
+	};
 	int count = 0;
 	std::stringstream ss;
 	for (auto & name : fs::directory_iterator(filepath)) {
@@ -37,10 +54,27 @@ int loadfile(const string &filepath) {
 		//std::cout << name << std::endl;
 		count++;
 	}
+	Fisheye fe;
 	for (int i = 0; i < count; i++) {
 		string s;
 		ss >> s;
-		std::cout << s << std::endl;
+		string name = 
+				s.substr(0, s.length() - postfix[s.substr(s.length() - 8, 8)]);
+		std::cout << name << std::endl;
+		if (hmap.find(name) != hmap.end()) {
+			if (hmap[name] < 5) {
+				hmap[name]++;
+			} else if (hmap[name] > 5) {
+				std::cerr << "more than 6 image of the same latlng exist! error latlng: "
+					<< name << std::endl;
+			} else {
+				std::cout << "the file name is : " << std::endl;
+				fe.draw(name);
+				hmap[name]++;
+			}
+		} else {
+			hmap[name] = 1;
+		}
 	}
 	return 0;
 }

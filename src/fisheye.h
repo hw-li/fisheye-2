@@ -46,13 +46,22 @@ public:
 		"_180_0.jpg"
 	};*/
 
-	const string postfix[6] = {
+	/*const string postfix[6] = {
 		"_90_0.bin",
 		"_270_0.bin",
 		"_0_90.bin",
 		"_0_270.bin",
 		"_0_0.bin",
 		"_180_0.bin"
+	};*/
+
+	const string postfix[6] = {
+		"_90_0.jpg",
+		"_270_0.jpg",
+		"_0_90.jpg",
+		"_0_270.jpg",
+		"_0_0.jpg",
+		"_180_0.jpg"
 	};
 
 	vector<const GLchar*> faces;
@@ -209,7 +218,7 @@ public:
 	}
 
 public:
-	int draw(const string & filename) {
+	int draw(const string & filename, const string &path) {
 		faces.clear();
 		/*
 		_90_0
@@ -245,9 +254,9 @@ public:
 			GLchar* gpuchar = &name[i][0];
 			faces.push_back(gpuchar);
 			//faces.push_back(name);
-			std::cout << "face: "<<faces[i] << std::endl;
+			//std::cout << "face: "<<faces[i] << std::endl;
 		}
-		std::cout << "loading texture" << std::endl;
+		//std::cout << "loading texture" << std::endl;
 		GLuint cubemapTexture = TextureLoading::LoadCubemap(faces);
 
 		glm::mat4 projection = glm::perspective(
@@ -256,11 +265,13 @@ public:
 			, 0.1f
 			, 1000.0f
 		);
-
+		
+		/*
 		std::string fileNames[6] = { "cubemap_top", "cubemap_bottom", "cubemap_left"
 			, "cubemap_right", "cubemap_front", "cubemap_back" };
+			*/
 
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i < 1; i++) {
 			glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -293,15 +304,13 @@ public:
 			glReadnPixels(0, 0, WIDTH, HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE
 				, WIDTH*HEIGHT * 4 * sizeof(unsigned char), data);
 
-			string outputName = fileNames[i] + ".jpg";
-
-			std::cerr << SOIL_save_image_quality(
-				&outputName[0],
+			SOIL_save_image_quality(
+				&path[0],
 				SOIL_SAVE_TYPE_JPG,
 				WIDTH, HEIGHT, 4,
 				data,
 				100
-			) << std::endl;
+			);
 			std::free(data);
 			glfwSwapBuffers(window);
 		}

@@ -113,22 +113,14 @@ int loadfile(const string &inpath, const string &outpath) {
 	for (auto &tileGroups : fs::directory_iterator(filepath)) {
 		for (auto &tile : fs::directory_iterator(tileGroups.path())) {
 			if (!fs::is_directory(tile)) continue;
-			int count = 0;
-			std::stringstream ss;
-			for (auto & name : fs::directory_iterator(tile.path())) {
-				ss << name << std::endl;
-				//std::cout << name << std::endl;
-				count++;
-			}
 
 			string currentDir = tile.path().string();
 
-			string outputDir = outDir + currentDir.substr(inDir.length(), currentDir.length()-inDir.length());
+			string outputDir = outDir + currentDir.substr(inDir.length(), currentDir.length() - inDir.length());
 			fs::create_directories(outputDir);
 
-			for (int i = 0; i < count; i++) {
-				string s;
-				ss >> s;
+			for (auto & fname : fs::directory_iterator(tile.path())) {
+				string s = fname.path().string();
 				// to reduce time consuming use
 				// if (s.find(".bin") != string::npos) break;
 				if (s.find(".jpg")==string::npos) continue;

@@ -13,45 +13,68 @@ using std::string;
 using std::ifstream;
 using std::stringstream;
 
-int decomp(const string &inputPath, const string &outputPath) {
-	int ret;
+/* Compress from file source to file dest until EOF on source.
+def() returns Z_OK on success, Z_MEM_ERROR if memory could not be
+allocated for processing, Z_STREAM_ERROR if an invalid compression
+level is supplied, Z_VERSION_ERROR if the version of zlib.h and the
+version of the library linked do not match, or Z_ERRNO if there is
+an error reading or writing the files. */
+int def(FILE *source, FILE *dest, int level)
+{
+	int ret, flush;
 	unsigned have;
 	z_stream strm;
-	unsigned char *input = new unsigned char[CHUNK];
-	
+	unsigned char in[CHUNK];
+	unsigned char out[CHUNK];
+
+	/* allocate deflate state */
 	strm.zalloc = Z_NULL;
 	strm.zfree = Z_NULL;
 	strm.opaque = Z_NULL;
-	strm.avail_in = 0;
-	strm.next_in = Z_NULL;
-	ret = inflateInit(&strm);
+	ret = deflateInit(&strm, level);
 	if (ret != Z_OK)
 		return ret;
 
-	ifstream inputFile(inputPath, ios::in);
-	ofstream outputFile(outputPath, ios::out | ios::binary);
+	/* compress until end of file */
+	do {
+		strm.avail_in = fread(in, 1, CHUNK, source);
+		if (ferror(source)) {
+			(void)deflateEnd(&strm);
+			return Z_ERRNO;
+		}
+		flush = feof(source) ? Z_FINISH : Z_NO_FLUSH;
+		strm.next_in = in;
 
-	int len = 0;
-	stringstream ss;
-	if (!inputFile.is_open()) {
-		std::cout<<"can't open file"<<std::endl;
-		throw(std::exception("can't open file"));
-	}
-	ss << inputFile.rdbuf();
-	vector<unsigned char> in;
-	unsigned char temp;
-	while (ss >> temp) {
-		in.push_back(temp);
-		if (ss.peek() == ',')
-			ss.ignore();
-	}
-	std::cout << "the data: " << std::endl;
-	for (int i = 0; i < in.size(); i++)
-		std::cout << (int)in[i] << " " << std::endl;
+		/* run deflate() on input until output buffer not full, finish
+		compression if all of source has been read in */
+		do {
+			strm.avail_out = CHUNK;
+			strm.next_out = out;
+			ret = deflate(&strm, flush);    /* no bad return value */
+			assert(ret != Z_STREAM_ERROR);  /* state not clobbered */
+			have = CHUNK - strm.avail_out;
+			if (fwrite(out, 1, have, dest) != have || ferror(dest)) {
+				(void)deflateEnd(&strm);
+				return Z_ERRNO;
+			}
+		} while (strm.avail_out == 0);
+		assert(strm.avail_in == 0);     /* all input will be used */
 
-	return 0;
+										/* done when last data in file processed */
+	} while (flush != Z_FINISH);
+	assert(ret == Z_STREAM_END);        /* stream will be complete */
+
+										/* clean up and return */
+	(void)deflateEnd(&strm);
+	return Z_OK;
 }
 
+/* Decompress from file source to file dest until stream ends or EOF.
+inf() returns Z_OK on success, Z_MEM_ERROR if memory could not be
+allocated for processing, Z_DATA_ERROR if the deflate data is
+invalid or incomplete, Z_VERSION_ERROR if the version of zlib.h and
+the version of the library linked do not match, or Z_ERRNO if there
+is an error reading or writing the files. */
 int inf(FILE *source, FILE *dest) {
 	int ret;
 	unsigned have;

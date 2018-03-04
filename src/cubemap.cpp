@@ -7,6 +7,14 @@ the entrance of displaying a cubemap
 
 #include"compress.h"
 
+#if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
+#  include <fcntl.h>
+#  include <io.h>
+#  define SET_BINARY_MODE(file) setmode(fileno(file), O_BINARY)
+#else
+#  define SET_BINARY_MODE(file)
+#endif
+
 int main(int argc, char** argv) {
 
 	if (argc > 1) {
@@ -26,15 +34,13 @@ int main(int argc, char** argv) {
 		std::cout << std::endl;
 	}
 	
-	//std::FILE *inputFile = std::fopen("C:/Users/lanzhige/Documents/project/cubemap/buil/src/Debug/-23.4017474730932_-46.51033859574164_0_0_f_c.bin", "rb");
-	//std::FILE *outputFile = std::fopen("C:/Users/lanzhige/Documents/project/cubemap/buil/src/Debug/output.bin", "wb");
-
-	//SET_BINARY_MODE(inputFile);
-	//SET_BINARY_MODE(outputFile);
-	/*decomp("C:/Users/lanzhige/Documents/project/cubemap/buil/src/Debug/-23.4017474730932_-46.51033859574164_0_0_f_c.bin", "C:/Users/lanzhige/Documents/project/cubemap/buil/src/Debug/output.bin");
-	int pause;
-	std::cin >> pause;*/
-	//inf(inputFile, outputFile);
+	std::FILE *inputFile;
+	std::FILE *outputFile;
+	fopen_s(&inputFile, "C:/Users/lanzhige/Documents/project/cubemap/build/src/Debug/40.8790234954071_-74.61353423782953_0_0_f_c.bin", "rb");
+	fopen_s(&outputFile, "C:/Users/lanzhige/Documents/project/cubemap/build/src/Debug/output.bin", "wb");
+	SET_BINARY_MODE(inputFile);
+	SET_BINARY_MODE(outputFile);
+	inf(inputFile, outputFile);
 
 	return 0;
 }

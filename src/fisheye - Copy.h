@@ -117,7 +117,6 @@ public:
 
 public:
 	int init() {
-		cout << "Initialize gl" << endl;
 		camera = (glm::vec3(0.0f, 0.0f, 3.0f));
 		glfwInit();
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -214,7 +213,7 @@ public:
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE
 			, 3 * sizeof(GLfloat), (GLvoid *)0);
 		glBindVertexArray(0);
-
+		
 		return 0;
 	}
 
@@ -258,12 +257,7 @@ public:
 			//std::cout << "face: "<<faces[i] << std::endl;
 		}
 		//std::cout << "loading texture" << std::endl;
-		GLuint cubemapTexture = TextureLoading::loadCubemap(faces);
-
-		/*
-		std::string fileNames[6] = { "cubemap_top", "cubemap_bottom", "cubemap_left"
-			, "cubemap_right", "cubemap_front", "cubemap_back" };
-			*/
+		GLuint cubemapTexture = TextureLoading::LoadCubemap(faces);
 
 		glm::mat4 projection = glm::perspective(
 			camera.GetZoom()
@@ -271,25 +265,31 @@ public:
 			, 0.1f
 			, 1000.0f
 		);
+		
+		/*
+		std::string fileNames[6] = { "cubemap_top", "cubemap_bottom", "cubemap_left"
+			, "cubemap_right", "cubemap_front", "cubemap_back" };
+			*/
 
-		glm::mat4 model;
-		glm::mat4 view = camera.GetViewMatrix();
-
-		// Change depth function so depth test passes when values 
-		// are equal to depth buffer's content
-		glDepthFunc(GL_LEQUAL);
-		shaders[0].Use();
-		view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
-
-		glUniformMatrix4fv(glGetUniformLocation(shaders[0].Program, "view")
-			, 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(
-			glGetUniformLocation(shaders[0].Program, "projection")
-			, 1, GL_FALSE, glm::value_ptr(projection)
-		);
-
+		for (int i = 0; i < 1; i++) {
 			glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			glm::mat4 model;
+			glm::mat4 view = camera.GetViewMatrix();
+
+			// Change depth function so depth test passes when values 
+			// are equal to depth buffer's content
+			glDepthFunc(GL_LEQUAL);
+			shaders[i].Use();
+			view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
+
+			glUniformMatrix4fv(glGetUniformLocation(shaders[i].Program, "view")
+				, 1, GL_FALSE, glm::value_ptr(view));
+			glUniformMatrix4fv(
+				glGetUniformLocation(shaders[i].Program, "projection")
+				, 1, GL_FALSE, glm::value_ptr(projection)
+			);
 
 			glBindVertexArray(cubemapVAO);
 			glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
@@ -310,9 +310,11 @@ public:
 				data,
 				100
 			);
-			std::free(data);
-			glfwSwapBuffers(window);
+			//std::free(data);
+			SOIL_free_image_data(data);
 			glDeleteTextures(1, &cubemapTexture);
+			glfwSwapBuffers(window);
+		}
 		return 0;
 	}
 

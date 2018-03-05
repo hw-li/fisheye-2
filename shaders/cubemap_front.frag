@@ -29,7 +29,7 @@ void main(){
         
         // Calculate sampling vector for the cube map
         float temp = sin(phi);
-        vec3 vector = vec3(-temp*dir.x, -temp*dir.y, cos(phi));
+        vec3 vector = vec3(-temp*dir.x, temp*dir.y, cos(phi));
 
         // Sample cube map
         vec3 color = texture(cubemap, vector).rgb;

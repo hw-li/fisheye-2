@@ -2,7 +2,7 @@
 
 precision highp float;
 in vec3 TexCoords;
-out vec4 color;
+out vec4 outcolor;
 uniform samplerCube cubemap;
 //uniform vec2 RES;
 
@@ -32,7 +32,7 @@ void main(){
         vec3 vector = vec3(-temp*dir.x, -temp*dir.y, -cos(phi));
 
         // Sample cube map
-        vec3 color = textureCube(cubemap, vector).rgb;
+        vec3 color = texture(cubemap, vector).rgb;
         fColor = vec4(color,1);
         //color = texture(cubemap, TexCoords);
     } else {
@@ -40,5 +40,5 @@ void main(){
     }
     
     // Set pixel color
-    gl_FragColor = fColor;
+    outcolor = fColor;
 }

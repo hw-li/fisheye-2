@@ -19,28 +19,31 @@ int main(int argc, char** argv) {
 
 	if (argc > 1) {
 		std::cout << argv[1] << std::endl;
-		if (argc > 2) {
+		if (argc > 3) {
+			recursiveLoad(argv[2], argv[2], argv[3], 2);
+		}
+		else if (argc > 2) {
 			std::cout << argv[2] << std::endl;
-			loadfile(argv[1], argv[2]);
+			recursiveLoad(argv[1], argv[1], argv[2], 1);
 			std::cout << std::endl;
 		}
 		else {
 			std::cout << "please input a directory to output files: ";
 			string path;
 			std::cin >> path;
-			loadfile(argv[1], path);
+			recursiveLoad(argv[1],argv[1], path);
 		}
 		
 		std::cout << std::endl;
 	}
 	
-	std::FILE *inputFile;
+	/*std::FILE *inputFile;
 	std::FILE *outputFile;
 	fopen_s(&inputFile, "C:/Users/lanzhige/Documents/project/cubemap/build/src/Debug/40.8790234954071_-74.61353423782953_0_0_f_c.bin", "rb");
 	fopen_s(&outputFile, "C:/Users/lanzhige/Documents/project/cubemap/build/src/Debug/output.bin", "wb");
 	SET_BINARY_MODE(inputFile);
 	SET_BINARY_MODE(outputFile);
-	inf(inputFile, outputFile);
+	inf(inputFile, outputFile);*/
 
 	return 0;
 }

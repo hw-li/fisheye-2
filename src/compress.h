@@ -157,4 +157,51 @@ void zerr(int ret)
 	}
 }
 
+int compress(unsigned char *source, const string &outpath, int size ,int level= Z_DEFAULT_COMPRESSION)
+{
+	int ret, flush;
+	unsigned have;
+	z_stream strm;
+	unsigned char *out = new unsigned char[size];
+	std::FILE *dest;
+	fopen_s(&dest, &outpath[0], "wb");
+
+	/* allocate deflate state */
+	strm.zalloc = Z_NULL;
+	strm.zfree = Z_NULL;
+	strm.opaque = Z_NULL;
+	ret = deflateInit(&strm, level);
+	if (ret != Z_OK)
+		return ret;
+
+	strm.avail_in = size;
+	flush = Z_FINISH;
+	strm.next_in = source;
+
+	do {
+		strm.avail_out = CHUNK;
+		strm.next_out = out;
+		ret = deflate(&strm, flush);    /* no bad return value */
+		assert(ret != Z_STREAM_ERROR);  /* state not clobbered */
+		have = CHUNK - strm.avail_out;
+		if (fwrite(out, 1, have, dest) != have || ferror(dest)) {
+			(void)deflateEnd(&strm);
+			return Z_ERRNO;
+		}
+	} while (strm.avail_out == 0);
+	/*
+	strm.avail_out = size;
+	strm.next_out = out;
+	flush = Z_FINISH;
+	ret = deflate(&strm, flush);
+	dest.write((char *)&out[0], size * sizeof(unsigned char));
+	(void)deflateEnd(&strm);
+	delete[] out;
+	dest.close();*/
+	delete[] out;
+	fclose(dest);
+	(void)deflateEnd(&strm);
+	return Z_OK;
+}
+
 #endif // ! COMPRESS_H_

@@ -20,6 +20,7 @@ use input image of six directions to generate fisheye output
 #include"camera.h"
 #include"model.h"
 #include"texture.h"
+#include"compress.h"
 
 class Fisheye {
 public:
@@ -62,6 +63,15 @@ public:
 		"_0_270.jpg",
 		"_0_0.jpg",
 		"_180_0.jpg"
+	};
+
+	const string bin_postfix[6] = {
+		"_90_0.bin",
+		"_270_0.bin",
+		"_0_90.bin",
+		"_0_270.bin",
+		"_0_0.bin",
+		"_180_0.bin"
 	};
 
 	//vector<const GLchar*> faces;
@@ -218,8 +228,132 @@ public:
 		return 0;
 	}
 
+	int drawTop(const string & filename, const string &path) {
+		vector<string> faces;
+		for (int i = 0; i < 6; i++) {
+			string s = filename + postfix[i];
+			faces.push_back(s);
+		}
+		GLuint cubemapTexture = TextureLoading::loadCubemap(faces);
+
+		glm::mat4 projection = glm::perspective(
+			camera.GetZoom()
+			, static_cast<float>(SCREEN_WIDTH) / static_cast<float>(SCREEN_HEIGHT)
+			, 0.1f
+			, 1000.0f
+		);
+
+		glm::mat4 model;
+		glm::mat4 view = camera.GetViewMatrix();
+
+		// Change depth function so depth test passes when values 
+		// are equal to depth buffer's content
+		glDepthFunc(GL_LEQUAL);
+		shaders[0].Use();
+		view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
+
+		glUniformMatrix4fv(glGetUniformLocation(shaders[0].Program, "view")
+			, 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(
+			glGetUniformLocation(shaders[0].Program, "projection")
+			, 1, GL_FALSE, glm::value_ptr(projection)
+		);
+
+		glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glBindVertexArray(cubemapVAO);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(0);
+		glDepthFunc(GL_LESS);
+
+		unsigned char* data =
+			(unsigned char*)malloc(WIDTH*HEIGHT * 4 * sizeof(unsigned char));
+
+		glReadnPixels(0, 0, WIDTH, HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE
+			, WIDTH*HEIGHT * 4 * sizeof(unsigned char), data);
+
+		SOIL_save_image_quality(
+			&path[0],
+			SOIL_SAVE_TYPE_JPG,
+			WIDTH, HEIGHT, 4,
+			data,
+			100
+		);
+		std::free(data);
+		glfwSwapBuffers(window);
+		glDeleteTextures(1, &cubemapTexture);
+		return 0;
+	}
+
+	int drawBin(const string & filename, const string &path) {
+		vector<string> faces;
+		for (int i = 0; i < 6; i++) {
+			string s = filename + bin_postfix[i];
+			faces.push_back(s);
+		}
+		GLuint cubemapTexture = TextureLoading::loadBinary(faces);
+
+		glm::mat4 projection = glm::perspective(
+			camera.GetZoom()
+			, static_cast<float>(SCREEN_WIDTH) / static_cast<float>(SCREEN_HEIGHT)
+			, 0.1f
+			, 1000.0f
+		);
+
+		for (int i = 0; i < 6; i++) {
+			//glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+			glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			glm::mat4 model;
+			glm::mat4 view = camera.GetViewMatrix();
+
+			// Change depth function so depth test passes when values 
+			// are equal to depth buffer's content
+			glDepthFunc(GL_LEQUAL);
+			shaders[i].Use();
+			view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
+
+			glUniformMatrix4fv(glGetUniformLocation(shaders[i].Program, "view")
+				, 1, GL_FALSE, glm::value_ptr(view));
+			glUniformMatrix4fv(
+				glGetUniformLocation(shaders[i].Program, "projection")
+				, 1, GL_FALSE, glm::value_ptr(projection)
+			);
+
+			glBindVertexArray(cubemapVAO);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+			glBindVertexArray(0);
+			glDepthFunc(GL_LESS);
+
+			unsigned char* data =
+				(unsigned char*)malloc(WIDTH * HEIGHT * sizeof(unsigned char));
+
+			glReadnPixels(0, 0, WIDTH, HEIGHT, GL_RED, GL_UNSIGNED_BYTE
+				, WIDTH * HEIGHT * sizeof(unsigned char), data);
+
+			string outpath = path + bin_postfix[i];
+			compress(data, outpath, WIDTH*HEIGHT);
+			/*ofstream myfile;
+			myfile.open(&outpath[0], ofstream::out|ofstream::binary);
+			myfile.write((char *)&data[0], WIDTH * HEIGHT * sizeof(unsigned char));
+			myfile.close();*/
+			std::free(data);
+			glfwSwapBuffers(window);
+		}
+		glDeleteTextures(1, &cubemapTexture);
+
+		return 0;
+	}
+
 public:
-	int draw(const string & filename, const string &path) {
+	int draw(const string & filename, const string &path, int op) {
+		if (op == 1) drawTop(filename, path);
+		if (op == 2) drawBin(filename, path);
+		return 0;
 		//faces.clear();
 		/*
 		_90_0

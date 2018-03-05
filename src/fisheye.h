@@ -74,6 +74,15 @@ public:
 		"_180_0.bin"
 	};
 
+	const string out_postfix[6] = {
+		"_0_90_f_c.bin",
+		"_0_270_f_c.bin",
+		"_0_0_f_c.bin",
+		"_180_0_f_c.bin",
+		"_90_0_f_c.bin",
+		"_270_0_f_c.bin",
+	};
+
 	//vector<const GLchar*> faces;
 
 	void KeyCallBack(GLFWwindow *window, int key, int scancode
@@ -335,7 +344,7 @@ public:
 			glReadnPixels(0, 0, WIDTH, HEIGHT, GL_RED, GL_UNSIGNED_BYTE
 				, WIDTH * HEIGHT * sizeof(unsigned char), data);
 
-			string outpath = path + bin_postfix[i];
+			string outpath = path + out_postfix[i];
 			compress(data, outpath, WIDTH*HEIGHT);
 			/*ofstream myfile;
 			myfile.open(&outpath[0], ofstream::out|ofstream::binary);

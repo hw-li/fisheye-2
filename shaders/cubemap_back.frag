@@ -36,7 +36,7 @@ void main(){
         fColor = vec4(color,1);
         //color = texture(cubemap, TexCoords);
     } else {
-        fColor = vec4(1);
+        fColor = vec4(0, 0, 0, 1);
     }
     
     // Set pixel color

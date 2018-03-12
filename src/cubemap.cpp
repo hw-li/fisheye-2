@@ -36,14 +36,5 @@ int main(int argc, char** argv) {
 		
 		std::cout << std::endl;
 	}
-	
-	/*std::FILE *inputFile;
-	std::FILE *outputFile;
-	fopen_s(&inputFile, "C:/Users/lanzhige/Documents/project/cubemap/build/src/Debug/40.8790234954071_-74.61353423782953_0_0_f_c.bin", "rb");
-	fopen_s(&outputFile, "C:/Users/lanzhige/Documents/project/cubemap/build/src/Debug/output.bin", "wb");
-	SET_BINARY_MODE(inputFile);
-	SET_BINARY_MODE(outputFile);
-	inf(inputFile, outputFile);*/
-
 	return 0;
 }

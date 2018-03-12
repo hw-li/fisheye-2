@@ -189,15 +189,6 @@ int compress(unsigned char *source, const string &outpath, int size ,int level= 
 			return Z_ERRNO;
 		}
 	} while (strm.avail_out == 0);
-	/*
-	strm.avail_out = size;
-	strm.next_out = out;
-	flush = Z_FINISH;
-	ret = deflate(&strm, flush);
-	dest.write((char *)&out[0], size * sizeof(unsigned char));
-	(void)deflateEnd(&strm);
-	delete[] out;
-	dest.close();*/
 	delete[] out;
 	fclose(dest);
 	(void)deflateEnd(&strm);

@@ -6,8 +6,6 @@
 #include <sstream>
 #include <iostream>
 
-#include <GL/glew.h>
-
 class Shader
 {
 public:

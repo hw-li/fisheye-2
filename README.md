@@ -1,2 +1,2 @@
-# cubemap
-Create simple cubemap with OpenGL
+# fisheye
+Create fisheye image and binary output.

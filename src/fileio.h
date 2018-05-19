@@ -47,6 +47,7 @@ static std::unordered_map<string, int> bin_postfix = {
 };
 
 static Fisheye fe;
+std::unordered_map<string, bool> *dulcheck = new std::unordered_map<string, bool>;
 
 /* recursively read directories and read image or binary files
 to generate fisheye file. Para basepath is the base path of input.
@@ -106,6 +107,15 @@ int recursiveLoad(const string &basepath
 						<< name << std::endl;
 				}
 				else {
+					int len = -1;
+					if (name.find_last_of('\\') != string::npos) len = name.find_last_of('\\')+1;
+					if (len == -1) len = name.find_last_of('/')+1;
+					string t = name.substr(len, name.length() - len);
+					if (dulcheck->find(t) == dulcheck->end()) (*dulcheck)[t] = true;
+					else {
+						hmap[name]++;
+						continue;
+					}
 					string out = outputDir + name.substr(
 						curDir.length(), name.length() - curDir.length()
 					) + "_f.png";
@@ -132,6 +142,15 @@ int recursiveLoad(const string &basepath
 						<< name << std::endl;
 				}
 				else {
+					int len = -1;
+					if (name.find_last_of('\\') != string::npos) len = name.find_last_of('\\') + 1;
+					if (len == -1) len = name.find_last_of('/') + 1;
+					string t = name.substr(len, name.length() - len);
+					if (dulcheck->find(t) == dulcheck->end()) (*dulcheck)[t] = true;
+					else {
+						hmap[name]++;
+						continue;
+					}
 					string out = outputDir + name.substr(
 						curDir.length(), name.length() - curDir.length()
 					);
